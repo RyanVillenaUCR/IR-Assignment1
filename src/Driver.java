@@ -23,7 +23,7 @@ public class Driver {
 
 //        System.out.println(Byte.toString((byte) 'a'));
         
-        String str = "tropical";
+        String str = "environments";
         int sum = 0;
         for (int i = 0; i < str.length(); i++)
             sum += (int) str.charAt(i);
