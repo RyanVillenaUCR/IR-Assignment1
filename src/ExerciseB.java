@@ -1,7 +1,6 @@
 import java.util.Map;
 import java.util.Set;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -21,71 +20,21 @@ public class ExerciseB {
         stopwords.add("");
         
         documents = new ArrayList<String>();
-        documents.add("Basketball is a sport played in many countries."
-                    + "NBA is a basketball league.");
-        documents.add("NBA is a basketball tournament in the US and other countries.");
-        documents.add("Basketball is a sport played in many countries."
-                    + "NBA is a basketball league."
-                    + "Click here for more.");
-        documents.add("Tropical fish include fish found in tropical environments around the world, "
-                    + "including both freshwater and salt water species.");
+        documents.add(DOCUMENT_0);
+        documents.add(DOCUMENT_1);
+        documents.add(DOCUMENT_2);
+        documents.add(DOCUMENT_3);
     }
     
     private byte asciiHash(String str) {
         
-        byte sum = 0;
+        int sum = 0;
         
         for (int i = 0; i < str.length(); i++)
-            sum += (byte) str.charAt(i);
+            sum += str.charAt(i);
 
-        return (byte) Math.floorMod((int) sum, 256);
+        return (byte) Math.floorMod(sum, MOD_VALUE);
     }
-    
-    /*
-     * s 115    01110011
-     * a 097    01100001
-     * l 108    01101100
-     * t 116    01110100
-     *   436    10110100
-     *   
-     * slides   10110101
-     * is the example wrong...?
-     */
-    
-    /*
-     * b 098    01100010
-     * o 111    01101111
-     * t 116    01110100
-     * h 104    01101000
-     * 
-     *   429    10101101
-     * slides   10101110
-     */
-    
-    /*
-     * f 102    01100110
-     * i 105    01101001
-     * s 115    01110011    
-     * h 104    01101000
-     *   426    10101010
-     *   
-     * slides   10101011
-     */
-    
-    /*
-     * t 116
-     * r 114
-     * o 111
-     * p 112
-     * i 105
-     * c 099
-     * a 097
-     * l 108
-     *   862    01011110
-     *   
-     * slides   01100001
-     *  
-     */
     
     private Map<String, Integer> getFrequencies(String document) {
         
@@ -144,6 +93,8 @@ public class ExerciseB {
         for (Map.Entry<String, Integer> str : freqs.entrySet()) {
             
             byte hash = asciiHash(str.getKey());
+//            System.out.println("Hashed \"" + str.getKey() + "\" to "
+//                    + byteToBinaryString(hash));
             
             // Do this for every occurrence of str
             for (int i = 0; i < str.getValue(); i++) {
@@ -157,21 +108,70 @@ public class ExerciseB {
         }
         
         boolean[] weightSum = new boolean[8];
-        for (int bit = 0; bit < 8; bit++) {
+        
+        for (int bit = 0; bit < 8; bit++)
             
-            weightSum[bit] = sumOfHashes[bit] > 0;
-        }
+            weightSum[7 - bit] = sumOfHashes[bit] > 0;
         
         
         
         return booleanArrToByte(weightSum);
     }
     
+    public int hammingDistance(byte b1, byte b2) {
+        
+        String str1 = byteToBinaryString(b1);
+        String str2 = byteToBinaryString(b2);
+        int sum = 0;
+        
+        for (int i = 0; i < str1.length(); i++) {
+            
+            sum += str1.charAt(i) == str2.charAt(i) ? 0 : 1;
+        }
+        
+        return sum;
+    }
+    
     public void testStuff() {
         
-        System.out.println(byteToBinaryString(simHash(documents.get(3))));
+//        for (String document : documents) {
+//            
+//            System.out.print("Simhash(\"" + document + "\"): ");
+//            System.out.println(byteToBinaryString(simHash(document)));
+//        }
+        
+        List<Byte> simHashes = new ArrayList<Byte>();
+        for (String document : documents)
+            simHashes.add(simHash(document));
+        
+        int lo_bound = 0;
+        int hi_bound = 3;
+        
+        for (int i = lo_bound; i <= hi_bound - 1; i++) {
+            for (int j = i + 1; j <= hi_bound; j++) {
+                
+                System.out.println("SimHash(D" + i + "): " + byteToBinaryString(simHashes.get(i)));
+                System.out.println("SimHash(D" + j + "): " + byteToBinaryString(simHashes.get(j)));
+                
+                System.out.println("hammingDist(D" + i + ", D" + j + "): "
+                                  + hammingDistance(simHashes.get(i), simHashes.get(j)) + "\n");
+            }
+        }
     }
     
     private final Set<String> stopwords;
     private final List<String> documents;
+    
+    private final int MOD_VALUE = 255; // 255 or 256
+    
+    private final String DOCUMENT_0 = "Tropical fish include fish found "
+                                    + "in tropical environments around the world, "
+                                    + "including both freshwater and salt water species.";
+    private final String DOCUMENT_1 = "Basketball is a sport played in many countries. "
+                                    + "NBA is a basketball league.";
+    private final String DOCUMENT_2 = "NBA is a basketball tournament "
+                                    + "in the US and other countries.";
+    private final String DOCUMENT_3 = "Basketball is a sport played in many countries. "
+                                    + "NBA is a basketball league. "
+                                    + "Click here for more.";
 }
