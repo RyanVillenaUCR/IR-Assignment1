@@ -2,3 +2,6 @@
 .project
 bin/
 temp/
+*.pdf
+*.xlsx
+*.docx
